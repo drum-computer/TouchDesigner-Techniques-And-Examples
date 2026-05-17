@@ -7,3 +7,4 @@ Todo:
 - Handle various depth level of children gracefully
 - Implement delete function
 - (bonus) see if we can use match expression in our parexecuteDAT
+- add possibility to persist nav points across td launches
