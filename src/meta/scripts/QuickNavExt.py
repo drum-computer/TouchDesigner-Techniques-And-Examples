@@ -1,62 +1,50 @@
-"""
-Extension classes enhance TouchDesigner components with python. An
-extension is accessed via ext.ExtensionClassName from any operator
-within the extended component. If the extension is promoted via its
-Promote Extension parameter, all its attributes with capitalized names
-can be accessed externally, e.g. op('yourComp').PromotedFunction().
-
-Help: search "Extensions" in wiki
-
-hello world
-"""
-
-from TDStoreTools import StorageManager
-import TDFunctions as TDF
 
 class QuickNavExt:
-	"""
-	QuickNavExt description
-	"""
-	def __init__(self, ownerComp):
-		# The component to which this extension is attached
-		self.ownerComp = ownerComp
+    """
+    QuickNavExt description
+    """
+    def __init__(self, ownerComp: baseCOMP):
+        self._ownerComp: baseCOMP = ownerComp 
+        self._navPoints: list[OP] = []
+        self._currentPoint: int = 0
+        self._mainPane: Pane = ui.panes[0]
+    
+    def OnPrevious(self):
+        numPoints: int = len(self._navPoints)
+        if(numPoints == 0):
+            return
 
-		# properties
-		TDF.createProperty(self, 'MyProperty', value=0, dependable=True,
-						   readOnly=False)
+        if(self._currentPoint <= 0):
+            self._currentPoint = numPoints - 1
+        else:
+            self._currentPoint -= 1
 
-		# attributes:
-		self.a = 0 # attribute
-		self.B = 1 # promoted attribute
+        self._mainPane.home(zoom=True, op=self._navPoints[self._currentPoint])
 
-		# stored items (persistent across saves and re-initialization):
-		storedItems = [
-			# Only 'name' is required...
-			{'name': 'StoredProperty', 'default': None, 'readOnly': False,
-			 						'property': True, 'dependable': True},
-		]
-		# Uncomment the line below to store StoredProperty. To clear stored
-		# 	items, use the Storage section of the Component Editor
-		
-		# self.stored = StorageManager(self, ownerComp, storedItems)
+    def OnNext(self):
+        numPoints: int = len(self._navPoints)
+        if(numPoints == 0):
+            return
+        if(self._currentPoint >= numPoints):
+            self._currentPoint = 0
+        else:
+            self._currentPoint += 1
 
-	def myFunction(self, v):
-		debug(v)
+        self._mainPane.home(zoom=True, op=self._navPoints[self._currentPoint])
+    
 
-	def PromotedFunction(self, v):
-		debug(v)
+    def OnRestart(self):
+        if(len(self._navPoints) == 0):
+            return
+        self._mainPane.home(zoom=True, op=self._navPoints[0])
+        self._currentPoint = 0
+                                
+        
 
-	# def onDestroyTD(self):
-	# 	"""
-	# 	Called when the extension or component is being deleted. Use this
-	# 	instead of __del__ for cleanup tasks.
-	# 	"""
-	# 	debug("onDestroyTD called")
+    def OnAdd(self):
+        currentOp: OP = self._ownerComp.parent().currentChild
+        print(f'added {currentOp} to the list of nav points')
+        self._navPoints.append(currentOp)
 
-	# def onInitTD(self):
-	# 	"""
-	# 	Called after the extension is fully initialized and attached to the 
-	# 	component. Use this instead of __init__ for tasks that require other
-	# 	components' extensions to be available, or that use promoted members.
-	# 	"""
-	# 	debug("onInitTD called")
+    def OnDelete(self):
+        pass
