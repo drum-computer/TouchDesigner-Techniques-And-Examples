@@ -1,6 +1,6 @@
 ### Various techniques and examples related to video playback in TouchDesigner
 
-#### Crossfader
+#### Crossfader [live stream where it was created](https://youtube.com/live/ZvHCXjkvluE?feature=share)
 description tba...
 todo:  
 - change code to live in extensions
